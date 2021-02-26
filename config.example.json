@@ -1,0 +1,7 @@
+{
+    "aliucord": "../repo",
+    "plugins": "../plugins",
+    "androidSDK": "C:\\Users\\User\\AppData\\Local\\Android\\Sdk",
+    "outputs": "../builds",
+    "outputsPlugins": "../buildsPlugins"
+}
