@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -36,13 +37,15 @@ func main() {
 	flag.StringVar(outName, "o", *outName, "Alias for output")
 	flag.Parse()
 
+	log.SetFlags(log.Lshortfile)
+
 	b, err := ioutil.ReadFile(*configPath)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	err = json.Unmarshal(b, &config)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	if *plugin == "" {
@@ -74,7 +77,7 @@ func build() {
 
 	javacBuild, err := filepath.Abs(config.Aliucord + "/Aliucord/build/intermediates/javac/debug")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	f, _ := os.Create(javacBuild + "/aliucord.zip")
 	zipw := zip.NewWriter(f)
@@ -111,12 +114,17 @@ func build() {
 }
 
 func buildPlugin(pluginName string) {
+	plugin, err := filepath.Abs(config.Plugins + "/" + pluginName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err = os.Stat(plugin); err != nil {
+		log.Fatal(err)
+	}
+
 	gradlew(config.Plugins, pluginName+":compileDebugJavaWithJavac")
 
-	javacBuild, err := filepath.Abs(config.Plugins + "/" + pluginName + "/build/intermediates/javac/debug")
-	if err != nil {
-		panic(err)
-	}
+	javacBuild := plugin + "/build/intermediates/javac/debug"
 	f, _ := os.Create(javacBuild + "/classes.zip")
 	zipw := zip.NewWriter(f)
 
@@ -142,7 +150,11 @@ func buildPlugin(pluginName string) {
 	zipw.Close()
 	f.Close()
 
-	execCmd(config.OutputsPlugins, "d8", javacBuild+"/classes.zip")
+	outputsPlugins, err := filepath.Abs(config.OutputsPlugins)
+	if err != nil {
+		log.Fatal(err)
+	}
+	execCmd(outputsPlugins, "d8", javacBuild+"/classes.zip")
 
 	out := pluginName + ".apk"
 	if *outName != "" {
@@ -156,15 +168,15 @@ func buildPlugin(pluginName string) {
 	if err == nil {
 		files, err := ioutil.ReadDir(src + "/res")
 		if err == nil && len(files) > 0 {
-			tmpApk := config.OutputsPlugins + "/" + pluginName + "-tmp.apk"
+			tmpApk := outputsPlugins + "/" + pluginName + "-tmp.apk"
 
-			execCmd(config.OutputsPlugins, "aapt2", "compile", "--dir", src+"/res", "-o", "tmpres.zip")
-			execCmd(config.OutputsPlugins, "aapt2", "link", "-I", config.AndroidSDK+"/platforms/android-29/android.jar",
+			execCmd(outputsPlugins, "aapt2", "compile", "--dir", src+"/res", "-o", "tmpres.zip")
+			execCmd(outputsPlugins, "aapt2", "link", "-I", config.AndroidSDK+"/platforms/android-29/android.jar",
 				"-R", "tmpres.zip", "--manifest", src+"/AndroidManifest.xml", "-o", tmpApk)
-			os.Remove(config.OutputsPlugins + "/tmpres.zip")
+			os.Remove(outputsPlugins + "/tmpres.zip")
 
 			zipr, _ := zip.OpenReader(tmpApk)
-			f, _ = os.Create(config.OutputsPlugins + "/" + out)
+			f, _ = os.Create(outputsPlugins + "/" + out)
 			defer f.Close()
 			zipw = zip.NewWriter(f)
 			defer zipw.Close()
@@ -181,7 +193,7 @@ func buildPlugin(pluginName string) {
 			}
 			zipr.Close()
 
-			f, _ = os.Open(config.OutputsPlugins + "/classes.dex")
+			f, _ = os.Open(outputsPlugins + "/classes.dex")
 			zipFilew, _ := zipw.Create("classes.dex")
 			io.Copy(zipFilew, f)
 			f.Close()
@@ -194,7 +206,7 @@ func buildPlugin(pluginName string) {
 		makeZipWithClasses(out)
 	}
 
-	os.Remove(config.OutputsPlugins + "/classes.dex")
+	os.Remove(outputsPlugins + "/classes.dex")
 	fmt.Printf("\n"+success+"\n", "Successfully built plugin: "+pluginName)
 }
 
@@ -225,6 +237,6 @@ func execCmd(dir, c string, args ...string) {
 	cmd.Stdout = os.Stdout
 	err := cmd.Run()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
