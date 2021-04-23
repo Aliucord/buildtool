@@ -198,19 +198,22 @@ func buildPlugin(pluginName string) {
 			io.Copy(zipFilew, f)
 			f.Close()
 
+			zipFilew, _ = zipw.Create("ac-plugin")
+			zipFilew.Write([]byte(pluginName))
+
 			os.Remove(tmpApk)
 		} else {
-			makeZipWithClasses(out)
+			makeZipWithClasses(out, pluginName)
 		}
 	} else {
-		makeZipWithClasses(out)
+		makeZipWithClasses(out, pluginName)
 	}
 
 	os.Remove(outputsPlugins + "/classes.dex")
 	fmt.Printf("\n"+success+"\n", "Successfully built plugin: "+pluginName)
 }
 
-func makeZipWithClasses(out string) {
+func makeZipWithClasses(out, pluginName string) {
 	f, _ := os.Create(config.OutputsPlugins + "/" + out)
 	defer f.Close()
 	zipw := zip.NewWriter(f)
@@ -220,6 +223,9 @@ func makeZipWithClasses(out string) {
 	zipFilew, _ := zipw.Create("classes.dex")
 	io.Copy(zipFilew, f)
 	f.Close()
+
+	zipFilew, _ = zipw.Create("ac-plugin")
+	zipFilew.Write([]byte(pluginName))
 }
 
 func gradlew(dir string, args ...string) {
