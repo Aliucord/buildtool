@@ -82,7 +82,7 @@ func build() {
 	f, _ := os.Create(javacBuild + "/aliucord.zip")
 	zipw := zip.NewWriter(f)
 
-	filepath.Walk(javacBuild+"/classes/com/aliucord", func(path string, f os.FileInfo, err error) error {
+	filepath.Walk(javacBuild+"/classes", func(path string, f os.FileInfo, err error) error {
 		if f.IsDir() {
 			return nil
 		}
@@ -156,11 +156,11 @@ func buildPlugin(pluginName string) {
 	}
 	execCmd(outputsPlugins, "d8", javacBuild+"/classes.zip")
 
-	out := pluginName + ".apk"
+	out := pluginName + ".zip"
 	if *outName != "" {
 		out = *outName
-		if !strings.HasSuffix(out, ".apk") {
-			out += ".apk"
+		if !strings.HasSuffix(out, ".zip") {
+			out += ".zip"
 		}
 	}
 

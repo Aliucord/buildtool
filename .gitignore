@@ -1,3 +1,2 @@
 buildtool*
-config.json
-config2.json
+config*.json
