@@ -48,6 +48,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	err = exec.Command("d8", "--version").Run()
+	if err != nil {
+		log.Fatal("d8 not found. Please add the Android build-tools (Android/Sdk/build-tools/VERSION) to your PATH and try again")
+	}
+
 	if *plugin == "" {
 		build()
 	} else if *plugin == "*" {
@@ -55,6 +60,10 @@ func main() {
 		file := strings.Split(string(b), "\n")
 
 		for i, ln := range file {
+			if len(strings.TrimSpace(ln)) == 0 {
+				continue
+			}
+
 			if strings.Contains(ln, "rootProject.name") {
 				break
 			}
@@ -64,7 +73,7 @@ func main() {
 			}
 
 			pluginName := strings.TrimSpace(strings.Replace(strings.ReplaceAll(strings.ReplaceAll(ln, `"`, ""), "'", ""), "include :", "", 1))
-			fmt.Printf(info+"\n", "Builiding plugin: "+pluginName)
+			fmt.Printf(info+"\n", "Building plugin: "+pluginName)
 			buildPlugin(pluginName)
 		}
 	} else {
