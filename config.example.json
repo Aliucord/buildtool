@@ -2,6 +2,7 @@
     "aliucord": "../repo",
     "plugins": "../plugins",
     "androidSDK": "C:\\Users\\User\\AppData\\Local\\Android\\Sdk",
+    "androidSDKVersion": "30",
     "outputs": "../builds",
     "outputsPlugins": "../buildsPlugins"
 }
