@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -9,19 +10,19 @@ import (
 	"strings"
 )
 
-func gradlew(dir string, args ...string) {
+func gradlew(stdout io.Writer, dir string, args ...string) {
 	if runtime.GOOS == "windows" {
-		execCmd(dir, "cmd", "/k", "gradlew.bat "+strings.Join(args, " ")+" && exit")
+		execCmd(stdout, dir, "cmd", "/k", "gradlew.bat "+strings.Join(args, " ")+" && exit")
 	} else {
-		execCmd(dir, "./gradlew", args...)
+		execCmd(stdout, dir, "./gradlew", args...)
 	}
 }
 
-func execCmd(dir, c string, args ...string) {
+func execCmd(stdout io.Writer, dir string, c string, args ...string) {
 	cmd := exec.Command(c, args...)
 	cmd.Dir = dir
 	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
+	cmd.Stdout = stdout
 	err := cmd.Run()
 	if err != nil {
 		log.Fatal(err)

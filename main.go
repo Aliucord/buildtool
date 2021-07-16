@@ -1,12 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -61,30 +61,23 @@ func main() {
 	if *plugin == "" {
 		build()
 	} else if *plugin == "*" {
-		b, err = os.ReadFile(config.Plugins + "/settings.gradle.kts")
+		regex := regexp.MustCompile(`':(\w+)'`)
+		buffer := bytes.NewBufferString("")
+		gradlew(buffer, config.Plugins, "projects")
 
-		if err != nil {
-			b, _ = os.ReadFile(config.Plugins + "/settings.gradle")
-		}
+		plugins := regex.FindAllStringSubmatch(buffer.String(), -1)
 
-		file := strings.Split(string(b), "\n")
+		for i, plugin := range plugins {
+			pluginName := plugin[1] //Match the first group, since at index 0 we have the full string
 
-		regex := regexp.MustCompile("include[\\s(][\"']:(\\w+)[\"']\\)?")
-
-		for i, ln := range file {
-			if len(strings.TrimSpace(ln)) == 0 {
+			if pluginName == "Aliucord" || pluginName == "DiscordStubs" {
 				continue
-			}
-
-			if strings.Contains(ln, "rootProject.name") {
-				break
 			}
 
 			if i > 0 {
 				fmt.Print("\n")
 			}
 
-			pluginName := regex.FindStringSubmatch(ln)[1]
 			fmt.Printf(info+"\n", "Building plugin: "+pluginName)
 			buildPlugin(pluginName)
 		}
