@@ -12,7 +12,7 @@ import (
 )
 
 func build() {
-	gradlew(config.Aliucord, ":Aliucord:compileDebugJavaWithJavac")
+	gradlew(os.Stdout, config.Aliucord, ":Aliucord:compileDebugJavaWithJavac")
 
 	javacBuild, err := filepath.Abs(config.Aliucord + "/Aliucord/build/intermediates/javac/debug")
 	if err != nil {
@@ -38,7 +38,7 @@ func build() {
 	zipw.Close()
 	f.Close()
 
-	execCmd(config.Outputs, "d8", javacBuild+"/aliucord.zip")
+	execCmd(os.Stdout, config.Outputs, "d8", javacBuild+"/aliucord.zip")
 
 	out := "Aliucord.dex"
 	if *outName != "" {
@@ -61,7 +61,7 @@ func buildPlugin(pluginName string) {
 		log.Fatal(err)
 	}
 
-	gradlew(config.Plugins, pluginName+":compileDebugJavaWithJavac")
+	gradlew(os.Stdout, config.Plugins, pluginName+":compileDebugJavaWithJavac")
 
 	javacBuild := plugin + "/build/intermediates/javac/debug"
 	f, _ := os.Create(javacBuild + "/classes.zip")
@@ -93,7 +93,7 @@ func buildPlugin(pluginName string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	execCmd(outputsPlugins, "d8", javacBuild+"/classes.zip")
+	execCmd(os.Stdout, outputsPlugins, "d8", javacBuild+"/classes.zip")
 
 	out := pluginName + ".zip"
 	if *outName != "" {
@@ -109,8 +109,8 @@ func buildPlugin(pluginName string) {
 		if err == nil && len(files) > 0 {
 			tmpApk := outputsPlugins + "/" + pluginName + "-tmp.apk"
 
-			execCmd(outputsPlugins, "aapt2", "compile", "--dir", src+"/res", "-o", "tmpres.zip")
-			execCmd(outputsPlugins, "aapt2", "link", "-I", config.AndroidSDK+"/platforms/android-"+config.AndroidSDKVersion+"/android.jar",
+			execCmd(os.Stdout, outputsPlugins, "aapt2", "compile", "--dir", src+"/res", "-o", "tmpres.zip")
+			execCmd(os.Stdout, outputsPlugins, "aapt2", "link", "-I", config.AndroidSDK+"/platforms/android-"+config.AndroidSDKVersion+"/android.jar",
 				"-R", "tmpres.zip", "--manifest", src+"/AndroidManifest.xml", "-o", tmpApk)
 			os.Remove(outputsPlugins + "/tmpres.zip")
 
