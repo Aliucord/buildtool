@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 )
 
@@ -59,8 +61,15 @@ func main() {
 	if *plugin == "" {
 		build()
 	} else if *plugin == "*" {
-		b, err = ioutil.ReadFile(config.Plugins + "/settings.gradle")
+		b, err = os.ReadFile(config.Plugins + "/settings.gradle.kts")
+
+		if err != nil {
+			b, _ = os.ReadFile(config.Plugins + "/settings.gradle")
+		}
+
 		file := strings.Split(string(b), "\n")
+
+		regex := regexp.MustCompile("include[\\s(][\"']:(\\w+)[\"']\\)?")
 
 		for i, ln := range file {
 			if len(strings.TrimSpace(ln)) == 0 {
@@ -75,7 +84,7 @@ func main() {
 				fmt.Print("\n")
 			}
 
-			pluginName := strings.TrimSpace(strings.Replace(strings.ReplaceAll(strings.ReplaceAll(ln, `"`, ""), "'", ""), "include :", "", 1))
+			pluginName := regex.FindStringSubmatch(ln)[1]
 			fmt.Printf(info+"\n", "Building plugin: "+pluginName)
 			buildPlugin(pluginName)
 		}
