@@ -66,7 +66,6 @@ func main() {
 		gradlew(buffer, config.Plugins, "projects")
 
 		plugins := regex.FindAllStringSubmatch(buffer.String(), -1)
-
 		for i, plugin := range plugins {
 			pluginName := plugin[1] //Match the first group, since at index 0 we have the full string
 
