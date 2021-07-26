@@ -11,6 +11,8 @@ import (
 	"strings"
 )
 
+const pluginExtension = ".aliu"
+
 func build() {
 	gradlew(os.Stdout, config.Aliucord, ":Aliucord:compileDebugJavaWithJavac")
 
@@ -95,11 +97,11 @@ func buildPlugin(pluginName string) {
 	}
 	execCmd(os.Stdout, outputsPlugins, "d8", javacBuild+"/classes.zip")
 
-	out := pluginName + ".zip"
+	out := pluginName + pluginExtension
 	if *outName != "" {
 		out = *outName
-		if !strings.HasSuffix(out, ".zip") {
-			out += ".zip"
+		if !strings.HasSuffix(out, pluginExtension) {
+			out += pluginExtension
 		}
 	}
 
