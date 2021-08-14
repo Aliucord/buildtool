@@ -17,14 +17,18 @@ type cfg struct {
 }
 
 const (
-	info    = "\033[1;34m%s\033[0m"
-	success = "\033[1;32m%s\033[0m"
+	RESET   = "\033[0m"
+	ERROR   = "\033[1;31m"
+	SUCCESS = "\033[1;32m"
+	WARN    = "\033[1;33m"
+	INFO    = "\033[1;34m"
 )
 
 var (
 	configPath = flag.String("config", "config.json", "Config path")
 	plugin     = flag.String("plugin", "", "Plugin name to build")
 	outName    = flag.String("output", "", "Output file name")
+	injector = flag.Bool("injector", false, "Build the injector")
 
 	config cfg
 )
@@ -37,15 +41,11 @@ func main() {
 	log.SetFlags(log.Lshortfile)
 
 	b, err := ioutil.ReadFile(*configPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = json.Unmarshal(b, &config)
-	if err != nil {
-		log.Fatal(err)
-	}
+	handleErr(err)
+	handleErr(json.Unmarshal(b, &config))
 
 	if config.AndroidSDKVersion == "" {
+		colorPrint(WARN, "NOTE: AndroidSDKVersion not set in config. Defaulting to v29. This will change to v30 in the future.")
 		config.AndroidSDKVersion = "29" // NOTE: warn in next versions to update config and use android 30 sdk
 	}
 
@@ -58,8 +58,10 @@ func main() {
 		buildToolNotFound("aapt2")
 	}
 
-	if *plugin == "" {
-		build()
+	if *injector {
+		build("Injector")
+	} else if *plugin == "" {
+		build("Aliucord")
 	} else if *plugin == "*" {
 		regex := regexp.MustCompile(`':(\w+)'`)
 		buffer := bytes.NewBufferString("")
@@ -76,10 +78,10 @@ func main() {
 			}
 
 			if i > 0 {
-				fmt.Print("\n")
+				fmt.Println()
 			}
 
-			fmt.Printf(info+"\n", "Building plugin: "+pluginName)
+			colorPrint(INFO, "Building plugin: " + pluginName)
 			buildPlugin(pluginName)
 		}
 	} else {
@@ -88,5 +90,5 @@ func main() {
 }
 
 func buildToolNotFound(tool string) {
-	log.Fatal(tool + " not found. Please add the Android build-tools (Android/Sdk/build-tools/VERSION) to your PATH and try again")
+	fatal(tool + " not found. Please add the Android build-tools (Android/Sdk/build-tools/VERSION) to your PATH and try again")
 }
