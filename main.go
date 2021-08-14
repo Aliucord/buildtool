@@ -20,15 +20,15 @@ const (
 	reset   = "\033[0m"
 	red     = "\033[1;31m"
 	success = "\033[1;32m"
-	warn = "\033[1;33m"
-	info = "\033[1;34m"
+	warn    = "\033[1;33m"
+	info    = "\033[1;34m"
 )
 
 var (
 	configPath = flag.String("config", "config.json", "Config path")
 	plugin     = flag.String("plugin", "", "Plugin name to build")
 	outName    = flag.String("output", "", "Output file name")
-	injector = flag.Bool("injector", false, "Build the injector")
+	injector   = flag.Bool("injector", false, "Build the injector")
 
 	config cfg
 )
@@ -81,7 +81,7 @@ func main() {
 				fmt.Println()
 			}
 
-			colorPrint(info, "Building plugin: " + pluginName)
+			colorPrint(info, "Building plugin: "+pluginName)
 			buildPlugin(pluginName)
 		}
 	} else {

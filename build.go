@@ -11,7 +11,7 @@ import (
 )
 
 func build(project string) {
-	gradlew(os.Stdout, config.Aliucord, ":" + project + ":compileDebugJavaWithJavac")
+	gradlew(os.Stdout, config.Aliucord, ":"+project+":compileDebugJavaWithJavac")
 
 	javacBuild, err := filepath.Abs(fmt.Sprintf("%s/%s/build/intermediates/javac/debug", config.Aliucord, project))
 	handleErr(err)
@@ -28,9 +28,9 @@ func build(project string) {
 		}
 	}
 
-	os.Rename(config.Outputs + "/classes.dex", config.Outputs + "/" + out)
+	os.Rename(config.Outputs+"/classes.dex", config.Outputs+"/"+out)
 
-	colorPrint(success, "Successfully built " + project)
+	colorPrint(success, "Successfully built "+project)
 }
 
 func buildPlugin(pluginName string) {
@@ -65,7 +65,7 @@ func buildPlugin(pluginName string) {
 			tmpApk := outputsPlugins + "/" + pluginName + "-tmp.apk"
 
 			execCmd(os.Stdout, outputsPlugins, "aapt2", "compile", "--dir", src+"/res", "-o", "tmpres.zip")
-			execCmd(os.Stdout, outputsPlugins, "aapt2", "link", "-I", config.AndroidSDK + "/platforms/android-" + config.AndroidSDKVersion + "/android.jar",
+			execCmd(os.Stdout, outputsPlugins, "aapt2", "link", "-I", config.AndroidSDK+"/platforms/android-"+config.AndroidSDKVersion+"/android.jar",
 				"-R", "tmpres.zip", "--manifest", src+"/AndroidManifest.xml", "-o", tmpApk)
 			os.Remove(outputsPlugins + "/tmpres.zip")
 
@@ -103,11 +103,11 @@ func buildPlugin(pluginName string) {
 	}
 
 	os.Remove(outputsPlugins + "/classes.dex")
-	colorPrint(success, "Successfully built plugin " + pluginName)
+	colorPrint(success, "Successfully built plugin "+pluginName)
 }
 
-func zipAndD8(f* os.File, zipw* zip.Writer, javacBuild, zipName, outputPath string) {
-	filepath.Walk(javacBuild + "/classes", func(path string, f os.FileInfo, err error) error {
+func zipAndD8(f *os.File, zipw *zip.Writer, javacBuild, zipName, outputPath string) {
+	filepath.Walk(javacBuild+"/classes", func(path string, f os.FileInfo, err error) error {
 		if err != nil {
 			colorPrint(red, err)
 			return nil
@@ -132,7 +132,7 @@ func zipAndD8(f* os.File, zipw* zip.Writer, javacBuild, zipName, outputPath stri
 	output, err := filepath.Abs(outputPath)
 	handleErr(err)
 
-	execCmd(os.Stdout, output, "d8", javacBuild + zipName)
+	execCmd(os.Stdout, output, "d8", javacBuild+zipName)
 }
 
 func makeZipWithClasses(out, pluginName string) {
