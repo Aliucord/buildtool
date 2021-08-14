@@ -30,7 +30,7 @@ func build(project string) {
 
 	os.Rename(config.Outputs + "/classes.dex", config.Outputs + "/" + out)
 
-	colorPrint(SUCCESS, "Successfully built " + project)
+	colorPrint(success, "Successfully built " + project)
 }
 
 func buildPlugin(pluginName string) {
@@ -103,13 +103,13 @@ func buildPlugin(pluginName string) {
 	}
 
 	os.Remove(outputsPlugins + "/classes.dex")
-	colorPrint(SUCCESS, "Successfully built plugin " + pluginName)
+	colorPrint(success, "Successfully built plugin " + pluginName)
 }
 
 func zipAndD8(f* os.File, zipw* zip.Writer, javacBuild, zipName, outputPath string) {
 	filepath.Walk(javacBuild + "/classes", func(path string, f os.FileInfo, err error) error {
 		if err != nil {
-			colorPrint(ERROR, err)
+			colorPrint(red, err)
 			return nil
 		}
 
@@ -132,7 +132,7 @@ func zipAndD8(f* os.File, zipw* zip.Writer, javacBuild, zipName, outputPath stri
 	output, err := filepath.Abs(outputPath)
 	handleErr(err)
 
-	execCmd(os.Stdout, output, "d8", javacBuild + zipName)
+	execCmd(os.Stdout, output, "d8", "--release", javacBuild + zipName)
 }
 
 func makeZipWithClasses(out, pluginName string) {

@@ -17,11 +17,11 @@ type cfg struct {
 }
 
 const (
-	RESET   = "\033[0m"
-	ERROR   = "\033[1;31m"
-	SUCCESS = "\033[1;32m"
-	WARN    = "\033[1;33m"
-	INFO    = "\033[1;34m"
+	reset   = "\033[0m"
+	red     = "\033[1;31m"
+	success = "\033[1;32m"
+	warn = "\033[1;33m"
+	info = "\033[1;34m"
 )
 
 var (
@@ -45,7 +45,7 @@ func main() {
 	handleErr(json.Unmarshal(b, &config))
 
 	if config.AndroidSDKVersion == "" {
-		colorPrint(WARN, "NOTE: AndroidSDKVersion not set in config. Defaulting to v29. This will change to v30 in the future.")
+		colorPrint(warn, "NOTE: AndroidSDKVersion not set in config. Defaulting to v29. This will change to v30 in the future.")
 		config.AndroidSDKVersion = "29" // NOTE: warn in next versions to update config and use android 30 sdk
 	}
 
@@ -81,7 +81,7 @@ func main() {
 				fmt.Println()
 			}
 
-			colorPrint(INFO, "Building plugin: " + pluginName)
+			colorPrint(info, "Building plugin: " + pluginName)
 			buildPlugin(pluginName)
 		}
 	} else {

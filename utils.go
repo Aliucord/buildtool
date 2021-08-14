@@ -17,14 +17,14 @@ func handleErr(err error) {
 }
 
 func fatal(args ...interface{}) {
-	colorPrint(ERROR, args...)
+	colorPrint(red, args...)
 	os.Exit(1)
 }
 
 func colorPrint(color string, args ...interface{}) {
 	fmt.Print(color)
 	fmt.Print(args...)
-	fmt.Println(RESET)
+	fmt.Println(reset)
 }
 
 func gradlew(stdout io.Writer, dir string, args ...string) {
