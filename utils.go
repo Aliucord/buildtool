@@ -2,13 +2,30 @@ package main
 
 import (
 	"archive/zip"
+	"fmt"
 	"io"
-	"log"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
 )
+
+func handleErr(err error) {
+	if err != nil {
+		fatal(err)
+	}
+}
+
+func fatal(args ...interface{}) {
+	colorPrint(red, args...)
+	os.Exit(1)
+}
+
+func colorPrint(color string, args ...interface{}) {
+	fmt.Print(color)
+	fmt.Print(args...)
+	fmt.Println(reset)
+}
 
 func gradlew(stdout io.Writer, dir string, args ...string) {
 	if runtime.GOOS == "windows" {
@@ -23,10 +40,7 @@ func execCmd(stdout io.Writer, dir string, c string, args ...string) {
 	cmd.Dir = dir
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = stdout
-	err := cmd.Run()
-	if err != nil {
-		log.Fatal(err)
-	}
+	handleErr(cmd.Run())
 }
 
 func writePluginEntry(zipw *zip.Writer, pluginName string) {
