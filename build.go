@@ -43,7 +43,7 @@ func buildPlugin(pluginName string) {
 
 	javacBuild := plugin + "/build/intermediates/javac/debug"
 
-	f, _ := os.Create(javacBuild + "classes.zip")
+	f, _ := os.Create(javacBuild + "/classes.zip")
 	zipw := zip.NewWriter(f)
 	zipAndD8(f, zipw, javacBuild, "/classes.zip", config.OutputsPlugins)
 
