@@ -16,9 +16,9 @@ func build(project string) {
 	javacBuild, err := filepath.Abs(fmt.Sprintf("%s/%s/build/intermediates/javac/debug", config.Aliucord, project))
 	handleErr(err)
 
-	f, _ := os.Create(javacBuild + "classes.zip")
+	f, _ := os.Create(javacBuild + "/classes.zip")
 	zipw := zip.NewWriter(f)
-	zipAndD8(f, zipw, javacBuild, "/aliucord.zip", config.Outputs)
+	zipAndD8(f, zipw, javacBuild, "/classes.zip", config.Outputs)
 
 	out := project + ".dex"
 	if *outName != "" {
