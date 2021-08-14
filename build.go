@@ -132,7 +132,7 @@ func zipAndD8(f* os.File, zipw* zip.Writer, javacBuild, zipName, outputPath stri
 	output, err := filepath.Abs(outputPath)
 	handleErr(err)
 
-	execCmd(os.Stdout, output, "d8", "--release", javacBuild + zipName)
+	execCmd(os.Stdout, output, "d8", javacBuild + zipName)
 }
 
 func makeZipWithClasses(out, pluginName string) {
