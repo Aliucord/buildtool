@@ -20,21 +20,26 @@ func build(project string) {
 	zipw := zip.NewWriter(f)
 	zipAndD8(f, zipw, javacBuild, "/classes.zip", config.Outputs)
 
-	out := project + ".dex"
+	isAliucord := project == "Aliucord"
+
+	out := project
 	if *outName != "" {
 		out = *outName
-		if !strings.HasSuffix(out, ".dex") {
-			out += ".dex"
-		}
+	}
+	suffix := ".dex"
+	if isAliucord {
+		suffix = ".zip"
+	}
+	if !strings.HasSuffix(out, suffix) {
+		out += suffix
 	}
 
-	if strings.EqualFold(project, "aliucord") {
-		tempDex := config.Outputs + "/classes.dex"
-		os.Rename(f.Name(), tempDex)
-		makeZipWithClasses(config.Outputs, project+".zip", nil)
-		os.Remove(tempDex)
+	dexFile := config.Outputs + "/classes.dex"
+	if isAliucord {
+		makeZipWithClasses(config.Outputs, out, nil)
+		handleErr(os.Remove(dexFile))
 	} else {
-		os.Rename(f.Name(), config.Outputs+"/Injector.dex")
+		handleErr(os.Rename(dexFile, config.Outputs+"/"+out))
 	}
 
 	colorPrint(success, "Successfully built "+project)
