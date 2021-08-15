@@ -20,15 +20,27 @@ func build(project string) {
 	zipw := zip.NewWriter(f)
 	zipAndD8(f, zipw, javacBuild, "/classes.zip", config.Outputs)
 
-	out := project + ".dex"
+	isAliucord := project == "Aliucord"
+
+	out := project
 	if *outName != "" {
 		out = *outName
-		if !strings.HasSuffix(out, ".dex") {
-			out += ".dex"
-		}
+	}
+	suffix := ".dex"
+	if isAliucord {
+		suffix = ".zip"
+	}
+	if !strings.HasSuffix(out, suffix) {
+		out += suffix
 	}
 
-	os.Rename(config.Outputs+"/classes.dex", config.Outputs+"/"+out)
+	dexFile := config.Outputs + "/classes.dex"
+	if isAliucord {
+		makeZipWithClasses(config.Outputs, out, nil)
+		handleErr(os.Remove(dexFile))
+	} else {
+		handleErr(os.Rename(dexFile, config.Outputs+"/"+out))
+	}
 
 	colorPrint(success, "Successfully built "+project)
 }
@@ -96,10 +108,10 @@ func buildPlugin(pluginName string) {
 
 			os.Remove(tmpApk)
 		} else {
-			makeZipWithClasses(out, pluginName)
+			makeZipWithClasses(config.OutputsPlugins, out, &pluginName)
 		}
 	} else {
-		makeZipWithClasses(out, pluginName)
+		makeZipWithClasses(config.OutputsPlugins, out, &pluginName)
 	}
 
 	os.Remove(outputsPlugins + "/classes.dex")
@@ -135,16 +147,18 @@ func zipAndD8(f *os.File, zipw *zip.Writer, javacBuild, zipName, outputPath stri
 	execCmd(os.Stdout, output, "d8", javacBuild+zipName)
 }
 
-func makeZipWithClasses(out, pluginName string) {
-	f, _ := os.Create(config.OutputsPlugins + "/" + out)
+func makeZipWithClasses(outdir, out string, pluginName *string) {
+	f, _ := os.Create(outdir + "/" + out)
 	defer f.Close()
 	zipw := zip.NewWriter(f)
 	defer zipw.Close()
 
-	f, _ = os.Open(config.OutputsPlugins + "/classes.dex")
+	f, _ = os.Open(outdir + "/classes.dex")
 	zipFilew, _ := zipw.Create("classes.dex")
 	io.Copy(zipFilew, f)
 	f.Close()
 
-	writePluginEntry(zipw, pluginName)
+	if pluginName != nil {
+		writePluginEntry(zipw, *pluginName)
+	}
 }
