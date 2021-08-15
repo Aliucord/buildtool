@@ -34,7 +34,7 @@ func build(project string) {
 		makeZipWithClasses(config.Outputs, project+".zip", nil)
 		os.Remove(tempDex)
 	} else {
-		os.Rename(f.Name(), config.Outputs + "/Injector.dex")
+		os.Rename(f.Name(), config.Outputs+"/Injector.dex")
 	}
 
 	colorPrint(success, "Successfully built "+project)
@@ -142,7 +142,7 @@ func zipAndD8(f *os.File, zipw *zip.Writer, javacBuild, zipName, outputPath stri
 	execCmd(os.Stdout, output, "d8", javacBuild+zipName)
 }
 
-func makeZipWithClasses(outdir, out string, pluginName* string) {
+func makeZipWithClasses(outdir, out string, pluginName *string) {
 	f, _ := os.Create(outdir + "/" + out)
 	defer f.Close()
 	zipw := zip.NewWriter(f)
