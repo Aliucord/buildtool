@@ -1,3 +1,5 @@
+DEPRECATED: Use new template that uses gradle plugin. https://github.com/Aliucord/plugins-template 
+
 # Aliucord buildtool
 
 Tool to build Aliucord and plugins for Aliucord.
